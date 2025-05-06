@@ -1,0 +1,77 @@
+import java.util.*;
+
+public class GraphOperations {
+
+    // Method to check if graphA is a subset (incidence) of graphB by structure
+    public static boolean incidence(Set<String> graphA, Set<String> graphB) {
+        Set<Set<String>> normalizedA = normalizeEdges(graphA);
+        Set<Set<String>> normalizedB = normalizeEdges(graphB);
+        return normalizedB.containsAll(normalizedA);
+    }
+
+    // Normalize the edges to focus on structure (ignoring vertex labels)
+    private static Set<Set<String>> normalizeEdges(Set<String> graph) {
+        Set<Set<String>> normalizedEdges = new HashSet<>();
+        for (String edge : graph) {
+            String[] vertices = edge.split(",");
+            Set<String> normalizedEdge = new HashSet<>(Arrays.asList(vertices));
+            normalizedEdges.add(normalizedEdge);
+        }
+        return normalizedEdges;
+    }
+
+    // Method to calculate the degree sequence of a graph
+    public static List<Integer> degree(Set<String> edges, Set<String> vertices) {
+        Map<String, Integer> vertexDegree = new HashMap<>();
+
+        // Initialize all vertices with degree 0
+        for (String vertex : vertices) {
+            vertexDegree.put(vertex, 0);
+        }
+
+        // Calculate degree by counting edge occurrences for each vertex
+        for (String edge : edges) {
+            String[] verticesInEdge = edge.split(",");
+            vertexDegree.put(verticesInEdge[0], vertexDegree.get(verticesInEdge[0]) + 1);
+            vertexDegree.put(verticesInEdge[1], vertexDegree.get(verticesInEdge[1]) + 1);
+        }
+
+        // Return the sorted list of degree values
+        List<Integer> degrees = new ArrayList<>(vertexDegree.values());
+        Collections.sort(degrees);
+        return degrees;
+    }
+
+    // Method to check if two graphs are isomorphic
+    public static boolean isomorphism(Set<String> graphA, Set<String> graphB) {
+        Set<String> verticesA = extractVertices(graphA);
+        Set<String> verticesB = extractVertices(graphB);
+
+        List<Integer> degreeA = degree(graphA, verticesA);
+        List<Integer> degreeB = degree(graphB, verticesB);
+
+        // Check if degree sequences are equal
+        return degreeA.equals(degreeB);
+    }
+
+    // Helper method to extract vertices from edges
+    private static Set<String> extractVertices(Set<String> edges) {
+        Set<String> vertices = new HashSet<>();
+        for (String edge : edges) {
+            String[] vs = edge.split(",");
+            vertices.add(vs[0]);
+            vertices.add(vs[1]);
+        }
+        return vertices;
+    }
+
+    public static void main(String[] args) {
+        Set<String> graphA = new HashSet<>(Arrays.asList("A,B", "B,C", "C,A"));
+        Set<String> graphB = new HashSet<>(Arrays.asList("1,2", "2,3", "3,1"));
+
+        System.out.println("Graph A is a subset of Graph B: " + incidence(graphA, graphB));
+        System.out.println("Degree Sequence of Graph A: " + degree(graphA, extractVertices(graphA)));
+        System.out.println("Degree Sequence of Graph B: " + degree(graphB, extractVertices(graphB)));
+        System.out.println("Graph A is isomorphic to Graph B: " + isomorphism(graphA, graphB));
+    }
+}
